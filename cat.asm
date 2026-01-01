@@ -1,8 +1,8 @@
 ; CONSTANTS
 
 ENOENT equ -2 ; file did not find error
-; syscalls
 
+; syscalls
 SYS_WRITE  equ 1
 SYS_READ   equ 0   
 SYS_EXIT   equ 60 
@@ -12,13 +12,12 @@ SYS_OPENAT equ 257
 STDOUT     equ 1
 AT_FDCWD   equ -100 
 
-
 section .data
     file_not_found db "File not found, good luck bro", 10
-    file_not_found_len equ $-file_not_found
+    file_not_found_len equ $-file_not_found ; Length of the msg
 
     specify_filename db "Please for the sake of the God specify the file name to read", 10
-    specify_filename_len equ $-specify_filename
+    specify_filename_len equ $-specify_filename 
 
 section .text
     global _start
