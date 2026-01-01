@@ -1,6 +1,7 @@
 ; CONSTANTS
 
-ENOENT equ -2 ; file did not find error
+ENOENT equ -2  ; file did not find error
+EACCES equ -13 ; could not access file
 
 ; syscalls
 SYS_WRITE  equ 1
@@ -13,11 +14,18 @@ STDOUT     equ 1
 AT_FDCWD   equ -100 
 
 section .data
+
     file_not_found db "File not found, good luck bro", 10
     file_not_found_len equ $-file_not_found ; Length of the msg
 
     specify_filename db "Please for the sake of the God specify the file name to read", 10
     specify_filename_len equ $-specify_filename 
+
+    no_file_access db "Please check your file permissions! ", 10
+    no_file_access_len equ $-no_file_access
+
+    hint db "hint: does your file contains read permissions?", 10
+    hint_len equ $-hint
 
 section .text
     global _start
@@ -38,9 +46,15 @@ _start:
     syscall
 
     mov r9, rax ; syscall returns fd in rax so save it in r9
-    cmp r9, ENOENT  ; -2 = ENOENT (file not found) error
+    cmp rax, ENOENT  ; -2 = ENOENT (file not found) error
     ; if r9 == ENOENT(-2) 
     je FNF ; file not found 
+    
+    ; elif r9 = EACCES(-13)
+    cmp rax, EACCES 
+    je permissions_denied
+
+    ; else:
     jmp read_loop
 
 read_loop:
@@ -78,6 +92,22 @@ FNF:
     mov rdi, STDOUT 
     mov rsi, file_not_found
     mov rdx, file_not_found_len
+    syscall
+    jmp failure_exit
+
+permissions_denied:
+    ; write no file access msg
+    mov rax, SYS_WRITE
+    mov rdi, STDOUT
+    mov rsi, no_file_access
+    mov rdx, no_file_access_len
+    syscall
+
+    ; write hint msg
+    mov rax, SYS_WRITE
+    mov rdi, STDOUT
+    mov rsi, hint
+    mov rdx, hint_len
     syscall
     jmp failure_exit
 
