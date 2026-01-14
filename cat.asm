@@ -27,9 +27,6 @@ section .data
     msg_not_found db "File not found :(", 10
     len_not_found equ $-msg_not_found
 
-    msg_no_filename db "No file to open. Usage: cat <filename>", 10
-    len_no_filename equ $-msg_no_filename 
-
     msg_no_access db "Please check your file permissions! ", 10
     len_no_access equ $-msg_no_access
 
@@ -93,9 +90,6 @@ _start:
         printf file_content, r13 
         jmp read_loop
         
-    no_arg:
-        printf msg_no_filename, len_no_filename
-        jmp failure_exit
 
     file_not_found:
         printf msg_not_found, len_not_found
