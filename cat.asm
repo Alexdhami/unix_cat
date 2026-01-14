@@ -48,8 +48,10 @@ _start:
         mov rcx, [rsp]
 
         cmp rcx, 2    ; compare rcx with 2
-        jb no_arg     ; jump if below
+        jb read_stdin     ; jump if below
+
         jmp open_file
+
 
     open_file:
         mov rax, SYS_OPENAT   ; size_t openat(dir_fd, pathname, flag(O_RDONLY, O_RDWR), mode )
@@ -71,12 +73,16 @@ _start:
         mov r12, rax          ; syscall returns fd in rax. So, save it in r12
         jmp read_loop
 
+    read_stdin:
+        mov r12, 0
+        jmp read_loop
+
     read_loop:
         ; Read and save to the buffer
         mov rax, SYS_READ      
         mov rdi, r12          ; fd
         mov rsi, file_content 
-        mov rdx, 1024 
+        mov rdx, 8192
         syscall
 
         ; rax returns how many bytes it read from the file
@@ -120,4 +126,4 @@ _start:
             xor rdi, rdi ; fd =   zero   -> success
             syscall
 section .bss
-    file_content resb 1024
+    file_content resq 8192
